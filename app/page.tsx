@@ -1,65 +1,153 @@
+"use client";
+import { useState } from "react";
+import {
+  Home,
+  Phone,
+  Calendar,
+  Settings,
+  Bell,
+  LogOut,
+  Zap,
+  Menu,
+} from "lucide-react";
+import userAvatar from "@/public/user.png";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { DashboardPage } from "./(Dashboard)/_pages/DashboardPage";
+import { CallLogsPage } from "./(Dashboard)/_pages/CallLogsPage";
+import { AppointmentsPage } from "./(Dashboard)/_pages/AppointmentsPage";
+import { SettingsPage } from "./(Dashboard)/_pages/SettingsPage";
 import Image from "next/image";
 
-export default function Home() {
+function App() {
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navItems = [
+    { id: "dashboard", label: "Dashboard Overview", icon: Home },
+    { id: "call-logs", label: "Call Logs", icon: Phone },
+    { id: "appointments", label: "Appointments", icon: Calendar },
+    { id: "settings", label: "Settings", icon: Settings },
+  ];
+
+  const handleNavClick = (pageId: string) => {
+    setCurrentPage(pageId);
+    setSidebarOpen(false);
+  };
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case "dashboard":
+        return <DashboardPage />;
+      case "call-logs":
+        return <CallLogsPage />;
+      case "appointments":
+        return <AppointmentsPage />;
+      case "settings":
+        return <SettingsPage />;
+      default:
+        return <DashboardPage />;
+    }
+  };
+
+  const Sidebar = () => (
+    <div className="h-full bg-[#0f1535] border-r border-[#1a2038] flex flex-col">
+      {/* Logo */}
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center">
+          <Zap className="w-6 h-6 text-white" />
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-4">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentPage === item.id;
+
+          return (
+            <Button
+              key={item.id}
+              onClick={() => handleNavClick(item.id)}
+              variant="ghost"
+              className={`w-full justify-start gap-3 mb-2 ${
+                isActive
+                  ? "text-white bg-[#1e3a8a]/30 hover:bg-[#1e3a8a]/40"
+                  : "text-gray-400 hover:text-white hover:bg-[#1a2038]"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-sm">{item.label}</span>
+            </Button>
+          );
+        })}
+      </nav>
+
+      {/* Log Out */}
+      <div className="p-4">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-red-400 hover:bg-[#1a2038] hover:text-red-300"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="text-sm">Log Out</span>
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex h-screen bg-[#0a0e27] overflow-hidden">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:block w-64">
+        <Sidebar />
+      </aside>
+
+      {/* Mobile Sidebar */}
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetContent
+          side="left"
+          className="w-64 p-0 bg-[#0f1535] border-[#1a2038]"
+        >
+          <Sidebar />
+        </SheetContent>
+      </Sheet>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto flex flex-col">
+        {/* Header */}
+        <header className="bg-[#0f1535] border-b border-[#1a2038] px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-end sticky top-0 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden absolute left-4 text-white hover:bg-[#1a2038]"
+            onClick={() => setSidebarOpen(true)}
           >
+            <Menu className="w-5 h-5" />
+          </Button>
+
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-400 hover:text-white hover:bg-[#1a2038]"
+            >
+              <Bell className="w-5 h-5" />
+            </Button>
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src={userAvatar}
+              alt="User"
+              width={40}
+              height={40}
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </div>
+        </header>
+
+        {renderPage()}
       </main>
     </div>
   );
 }
+
+export default App;
